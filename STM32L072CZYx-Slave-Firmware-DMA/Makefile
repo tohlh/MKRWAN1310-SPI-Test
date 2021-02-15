@@ -39,6 +39,7 @@ C_SOURCES =  \
 Core/Src/main.c \
 Core/Src/gpio.c \
 Core/Src/spi.c \
+Core/Src/dma.c \
 Core/Src/stm32l0xx_it.c \
 Core/Src/stm32l0xx_hal_msp.c \
 Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_spi.c \
