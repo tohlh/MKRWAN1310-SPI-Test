@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "spi.h"
 #include "gpio.h"
 
@@ -33,7 +34,13 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+typedef enum
+{
+  TODO_READY,
+  TODO_START_RX,
+  TODO_WAIT_RX,
+  TODO_END_RX
+} ToDoTypeDef;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -44,7 +51,11 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint8_t rxData = 0;
+uint8_t txData = 0xBB;
+uint32_t tick_rx_start;
+HAL_StatusTypeDef status;
+ToDoTypeDef todo = TODO_READY;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -54,7 +65,16 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
+  todo = TODO_END_RX; /* show messages */
+}
 
+void triggerLoRaIrq(int cnt) {
+  for(int i=0; i < cnt; i++) {
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
+  }
+}
 /* USER CODE END 0 */
 
 /**
@@ -83,6 +103,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
@@ -91,6 +112,34 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    switch(todo) {
+	  case TODO_READY:
+		if (HAL_GetTick() > 650) {
+		  todo = TODO_START_RX;
+		}
+		break;
+	  case TODO_START_RX: /* start HAL_SPI_TransmitReceive_xxx */
+	  {
+		status = HAL_SPI_TransmitReceive_DMA(&hspi2, (uint8_t*)&txData, (uint8_t*)&rxData, 1);
+		if (status == HAL_OK) {
+		  todo = TODO_WAIT_RX;
+		}
+		break;
+	  }
+	  case TODO_WAIT_RX: /* until HAL_SPI_TxRxCpltCallback is triggered */
+	  {
+		break;
+	  }
+	  case TODO_END_RX: /* notify master */
+	  {
+		triggerLoRaIrq(rxData);
+		todo = TODO_START_RX;
+		break;
+	  }
+	  default:
+		/* do nothing */
+		break;
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
