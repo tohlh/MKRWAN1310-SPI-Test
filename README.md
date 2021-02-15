@@ -32,3 +32,9 @@ With the current firmware and master sketch, it is expected to see the following
 20:03:27.045 -> LORA_IRQ RISING was triggered 6 times
 20:03:27.045 -> Please enter a number from 1 to 9
 ```
+
+## Problem faced
+
+From the above example of what's seen on the serial monitor, we can observe that rxData always stays at 0xFF. However, in the STM32 firmware, we have configured the device to transmit 0xBB back to master every time. This means the data cannot be received by SAM D21, which is an issue that stops us from developing the firmware.
+
+Please feel free to test the codes and raise any issues that can eventually help us resolve this issue. Thanks.
