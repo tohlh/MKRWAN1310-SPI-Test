@@ -11,6 +11,8 @@ Eclipse with System Workbench for STM32 is required to compile the firmware, fol
 
 Once installed, you can then build the project that will generate a fw.h file, which can be flashed onto the STM32 on MKRWAN 1310 with MKRWANFWUpdate_standalone example in https://github.com/arduino-libraries/MKRWAN.
 
+To flash with MKRWANFWUpdate_standalone, replace the fw.h file in the example and upload the sketch to the device. Open up serial monitor to get the firmware flashed.
+
 The repo already includes the latest fw.h file for each version of the firmware.
 
 ## The Master sketch
