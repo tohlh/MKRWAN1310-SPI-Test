@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = STM32L072CZYx
+TARGET = mlm32l07x01
 
 
 ######################################
@@ -147,7 +147,7 @@ LIBDIR =
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
-all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin fw.h
+all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(TARGET).bin fw.h
 
 
 #######################################
@@ -173,14 +173,14 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(HEX) $< $@
 	
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
+%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(BIN) $< $@	
 	
 $(BUILD_DIR):
 	mkdir $@		
 
-fw.h: $(BUILD_DIR)/$(TARGET).bin
-	echo -n "const " > fw.h && xxd -i $(BUILD_DIR)/$(TARGET).bin >> fw.h
+fw.h: $(TARGET).bin
+	/bin/echo -n "const " > fw.h && xxd -i $(TARGET).bin >> fw.h
 
 #######################################
 # clean up
